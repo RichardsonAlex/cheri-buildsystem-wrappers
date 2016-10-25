@@ -75,4 +75,20 @@ install(FILES
     DESTINATION ${CMAKE_INSTALL_DATADIR}/cmake/cheri-toolchains
 )
 
+set(TOOLCHAIN_FILE ${CMAKE_INSTALL_FULL_DATADIR}/cmake/cheri-toolchains/CheriBSDToolchainMips.cmake)
+configure_file(cmake-for-cheribsd.sh.in ${CMAKE_CURRENT_BINARY_DIR}/cmake-for-cheribsd-mips.sh @ONLY)
+
+set(TOOLCHAIN_FILE ${CMAKE_INSTALL_FULL_DATADIR}/cmake/cheri-toolchains/CheriBSDToolchainPureStatic.cmake)
+configure_file(cmake-for-cheribsd.sh.in ${CMAKE_CURRENT_BINARY_DIR}/cmake-for-cheribsd-pure-static.sh @ONLY)
+
+set(TOOLCHAIN_FILE ${CMAKE_INSTALL_FULL_DATADIR}/cmake/cheri-toolchains/CheriBSDToolchainPureDynamic.cmake)
+configure_file(cmake-for-cheribsd.sh.in ${CMAKE_CURRENT_BINARY_DIR}/cmake-for-cheribsd-pure-dynamic.sh @ONLY)
+
+install(PROGRAMS
+    ${CMAKE_CURRENT_BINARY_DIR}/cmake-for-cheribsd-mips.sh
+    ${CMAKE_CURRENT_BINARY_DIR}/cmake-for-cheribsd-pure-static.sh
+    ${CMAKE_CURRENT_BINARY_DIR}/cmake-for-cheribsd-pure-dynamic.sh
+    DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+
 feature_summary(WHAT ALL INCLUDE_QUIET_PACKAGES)
