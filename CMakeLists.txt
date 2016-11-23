@@ -51,44 +51,54 @@ if(NOT EXISTS "${TOOLCHAIN_SYSROOT}/usr/include")
 endif()
 
 
+include(CMakeParseArguments)
+function(create_cheribsd_cmake_wrapper _toolchainName _scriptName)
+    cmake_parse_arguments(cccm "" "TRIPLE;ABI_FLAGS;LINKER_FLAGS" "" ${ARGN})
+    set(TOOLCHAIN_TARGET_TRIPLE ${cccm_TRIPLE})
+    set(TOOLCHAIN_EXTRA_LINKER_FLAGS ${cccm_LINKER_FLAGS})
+    set(TOOLCHAIN_ABI_FLAGS ${cccm_ABI_FLAGS})
+    configure_file(CheriBSDToolchainTemplate.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/${_toolchainName}.cmake @ONLY)
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${_toolchainName}.cmake
+            DESTINATION ${CMAKE_INSTALL_DATADIR}/cmake/cheri-toolchains)
 
-# pure MIPS
-set(TOOLCHAIN_TARGET_TRIPLE cheri-unknown-freebsd)
-set(TOOLCHAIN_EXTRA_LINKER_FLAGS " -static")
-set(TOOLCHAIN_ABI_FLAGS "-mabi=sandbox")
-configure_file(CheriBSDToolchainTemplate.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/CheriBSDToolchainPureStatic.cmake @ONLY)
+    # create the wrapper script that calls CMake with -DCMAKE_TOOLCHAIN_FILE
+    set(TOOLCHAIN_FILE ${CMAKE_INSTALL_FULL_DATADIR}/cmake/cheri-toolchains/${_toolchainName}.cmake)
+    configure_file(cmake-for-cheribsd.sh.in ${CMAKE_CURRENT_BINARY_DIR}/${_scriptName} @ONLY)
+    install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/${_scriptName}
+            DESTINATION ${CMAKE_INSTALL_BINDIR})
+endfunction()
 
-set(TOOLCHAIN_TARGET_TRIPLE cheri-unknown-freebsd)
-set(TOOLCHAIN_ABI_FLAGS "-mabi=sandbox")
-set(TOOLCHAIN_EXTRA_LINKER_FLAGS)
-configure_file(CheriBSDToolchainTemplate.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/CheriBSDToolchainPureDynamic.cmake @ONLY)
-
-set(TOOLCHAIN_TARGET_TRIPLE cheri-unknown-freebsd)
-set(TOOLCHAIN_EXTRA_LINKER_FLAGS)
-set(TOOLCHAIN_ABI_FLAGS "-mabi=64")
-configure_file(CheriBSDToolchainTemplate.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/CheriBSDToolchainMips.cmake @ONLY)
-
-install(FILES 
-    ${CMAKE_CURRENT_BINARY_DIR}/CheriBSDToolchainMips.cmake
-    ${CMAKE_CURRENT_BINARY_DIR}/CheriBSDToolchainPureDynamic.cmake
-    ${CMAKE_CURRENT_BINARY_DIR}/CheriBSDToolchainPureStatic.cmake
-    DESTINATION ${CMAKE_INSTALL_DATADIR}/cmake/cheri-toolchains
+# CheriABI
+create_cheribsd_cmake_wrapper(CheriBSDToolchainCheriABIStatic cmake-for-cheribsd-cheriabi-static.sh
+    TRIPLE cheri-unknown-freebsd
+    ABI_FLAGS "-mabi=sandbox"
+    LINKER_FLAGS " -static"
 )
-
-set(TOOLCHAIN_FILE ${CMAKE_INSTALL_FULL_DATADIR}/cmake/cheri-toolchains/CheriBSDToolchainMips.cmake)
-configure_file(cmake-for-cheribsd.sh.in ${CMAKE_CURRENT_BINARY_DIR}/cmake-for-cheribsd-mips.sh @ONLY)
-
-set(TOOLCHAIN_FILE ${CMAKE_INSTALL_FULL_DATADIR}/cmake/cheri-toolchains/CheriBSDToolchainPureStatic.cmake)
-configure_file(cmake-for-cheribsd.sh.in ${CMAKE_CURRENT_BINARY_DIR}/cmake-for-cheribsd-pure-static.sh @ONLY)
-
-set(TOOLCHAIN_FILE ${CMAKE_INSTALL_FULL_DATADIR}/cmake/cheri-toolchains/CheriBSDToolchainPureDynamic.cmake)
-configure_file(cmake-for-cheribsd.sh.in ${CMAKE_CURRENT_BINARY_DIR}/cmake-for-cheribsd-pure-dynamic.sh @ONLY)
-
-install(PROGRAMS
-    ${CMAKE_CURRENT_BINARY_DIR}/cmake-for-cheribsd-mips.sh
-    ${CMAKE_CURRENT_BINARY_DIR}/cmake-for-cheribsd-pure-static.sh
-    ${CMAKE_CURRENT_BINARY_DIR}/cmake-for-cheribsd-pure-dynamic.sh
-    DESTINATION ${CMAKE_INSTALL_BINDIR}
+create_cheribsd_cmake_wrapper(CheriBSDToolchainCheriABIDynamic cmake-for-cheribsd-cheriabi-dynamic.sh
+    TRIPLE cheri-unknown-freebsd
+    ABI_FLAGS "-mabi=sandbox"
+    LINKER_FLAGS ""
 )
-
+# CheriABI using LLD
+create_cheribsd_cmake_wrapper(CheriBSDToolchainCheriABIStaticWithLLD cmake-for-cheribsd-cheriabi-static-with-lld.sh
+    TRIPLE cheri-unknown-freebsd
+    ABI_FLAGS "-mabi=sandbox"
+    LINKER_FLAGS " -static -fuse-ld=lld"
+)
+create_cheribsd_cmake_wrapper(CheriBSDToolchainCheriABIDynamicWithLLD cmake-for-cheribsd-cheriabi-dynamic-with-lld.sh
+    TRIPLE cheri-unknown-freebsd
+    ABI_FLAGS "-mabi=sandbox"
+    LINKER_FLAGS " -fuse-ld=lld"
+)
+# MIPS only:
+create_cheribsd_cmake_wrapper(CheriBSDToolchainMIPSStatic cmake-for-cheribsd-mips-static.sh
+    TRIPLE mips64-unknown-freebsd
+    ABI_FLAGS "-mabi=64"
+    LINKER_FLAGS " -static"
+)
+create_cheribsd_cmake_wrapper(CheriBSDToolchainMIPSDynamic cmake-for-cheribsd-mips-dynamic.sh
+    TRIPLE mips64-unknown-freebsd
+    ABI_FLAGS "-mabi=64"
+    LINKER_FLAGS ""
+)
 feature_summary(WHAT ALL INCLUDE_QUIET_PACKAGES)

@@ -78,4 +78,4 @@ SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 #  /build/ctsrd/sdk256/bin/mips64-unknown-freebsd-ranlib: Matching formats:
 #  elf64-tradbigmips ecoff-bigmips ecoff-littlemips
 # As it is not required we can simply use : instead
-set(CMAKE_RANLIB ":")
+# set(CMAKE_RANLIB ":")
