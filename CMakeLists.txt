@@ -72,23 +72,23 @@ endfunction()
 create_cheribsd_cmake_wrapper(CheriBSDToolchainCheriABIStatic cmake-for-cheribsd-cheriabi-static.sh
     TRIPLE cheri-unknown-freebsd
     ABI_FLAGS "-mabi=sandbox"
-    LINKER_FLAGS " -static"
+    LINKER_FLAGS " -static -Wl,-melf64btsmip_cheri_fbsd"
 )
 create_cheribsd_cmake_wrapper(CheriBSDToolchainCheriABIDynamic cmake-for-cheribsd-cheriabi-dynamic.sh
     TRIPLE cheri-unknown-freebsd
     ABI_FLAGS "-mabi=sandbox"
-    LINKER_FLAGS ""
+    LINKER_FLAGS " -Wl,-melf64btsmip_cheri_fbsd"
 )
 # CheriABI using LLD
 create_cheribsd_cmake_wrapper(CheriBSDToolchainCheriABIStaticWithLLD cmake-for-cheribsd-cheriabi-static-with-lld.sh
     TRIPLE cheri-unknown-freebsd
     ABI_FLAGS "-mabi=sandbox"
-    LINKER_FLAGS " -static -fuse-ld=lld"
+    LINKER_FLAGS " -static -fuse-ld=lld -Wl,-melf64btsmip_cheri_fbsd"
 )
 create_cheribsd_cmake_wrapper(CheriBSDToolchainCheriABIDynamicWithLLD cmake-for-cheribsd-cheriabi-dynamic-with-lld.sh
     TRIPLE cheri-unknown-freebsd
     ABI_FLAGS "-mabi=sandbox"
-    LINKER_FLAGS " -fuse-ld=lld"
+    LINKER_FLAGS " -fuse-ld=lld -Wl,-melf64btsmip_cheri_fbsd"
 )
 # MIPS only:
 create_cheribsd_cmake_wrapper(CheriBSDToolchainMIPSStatic cmake-for-cheribsd-mips-static.sh
