@@ -130,4 +130,14 @@ create_cheribsd_cmake_wrapper(CheriBSDToolchainMIPSDynamic cmake-for-cheribsd-mi
     ABI_FLAGS "-mabi=64"
     LINKER_FLAGS ""
 )
+create_cheribsd_cmake_wrapper(CheriBSDToolchainMIPSStaticWithLLD cmake-for-cheribsd-mips-static-with-lld.sh
+    TRIPLE mips64-unknown-freebsd
+    ABI_FLAGS "-mabi=64"
+    LINKER_FLAGS " -fuse-ld=lld -static"
+)
+create_cheribsd_cmake_wrapper(CheriBSDToolchainMIPSDynamicWithLLD cmake-for-cheribsd-mips-dynamic-with-lld.sh
+    TRIPLE mips64-unknown-freebsd
+    ABI_FLAGS "-mabi=64"
+    LINKER_FLAGS " -fuse-ld=lld"
+)
 feature_summary(WHAT ALL INCLUDE_QUIET_PACKAGES)
